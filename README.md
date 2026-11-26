@@ -4,7 +4,7 @@ Eine Progressive Web App (PWA), die täglich **gute Nachrichten** zu selbst gew�
 
 ## Funktionen
 
-- **Themen**: Medizin & Gesundheit, Umwelt & Klimaschutz, Erneuerbare Energien, Artenschutz & Biodiversität, Technologie für Gutes, Menschenrechte & Humanitäre Hilfe, Bildung & Wissenstransfer, Armutsbekämpfung. Per Checkbox wählbar und um eigene Themen erweiterbar.
+- **Themen**: Medizin & Gesundheit, Umwelt & Klimaschutz, Erneuerbare Energien, Artenschutz & Biodiversität, Technologie für Gutes, Menschenrechte & Humanitäre Hilfe, Bildung & Wissenstransfer, Armutsbekämpfung & Wirtschaft, Wasser, Sanitär & Hygiene, Ernährung & Landwirtschaft. Dazu kommen weitere Themen, die anfangs abgewählt sind: Sport, Kultur, Verkehr, Wohnen, Altern, Religion & Dialog, Nachbarschaft, Innovation. Alles ist per Checkbox wählbar und um eigene Themen erweiterbar.
 - **Quellen**
   - DE: Tagesschau, ZEIT, FAZ, Süddeutsche, Spiegel, dpa, NZZ
   - International: Reuters, AP, BBC, Guardian, Le Monde, El País
@@ -12,7 +12,13 @@ Eine Progressive Web App (PWA), die täglich **gute Nachrichten** zu selbst gew�
   - Eigene Quellen mit Name, Domain und Sprache lassen sich ergänzen.
 - **Automatische tägliche Suche**: Beim ersten Öffnen eines Tages (und zur Benachrichtigungszeit) sucht die App nach neuen Meldungen.
 - **Automatische Übersetzung** ins Deutsche über die kostenlose [MyMemory API](https://mymemory.translated.net/doc/spec.php). Übersetzungen werden lokal zwischengespeichert. Der Originaltitel lässt sich einblenden.
-- **Gute-Nachrichten-Filter**: Jede Schlagzeile wird bewertet, im Original und in der deutschen Übersetzung. Positive Begriffe wie „Durchbruch“, „gerettet“, „Rekord“ oder „Forschungserfolg“ zählen +1, negative wie „Krieg“, „Anschlag“ oder „Krise“ zählen −2. Klar negative Meldungen werden nie gespeichert. Im strengen Modus (Standard) erscheinen nur Meldungen mit mindestens einem positiven Signal; jede Karte zeigt das Stichwort, an dem die positive Wirkung erkannt wurde (🌱). Die Wortlisten stehen in `data.json` unter `positivity`.
+- **Gute-Nachrichten-Filter**: Jede Schlagzeile wird bewertet, nach der Übersetzung auf Deutsch:
+  - **Themen-Begriffe** (je Thema, z. B. „Windkraft“, „Seeadler“, „Stipendium“) zeigen nur, worum es geht.
+  - **Generische Wörter** („Rekord“, „Erfolg“, „erstmals“, „Durchbruch“, schwächer: „neu“, „Kooperation“) zählen **nur zusammen mit einem Themen-Begriff**. „Rekord · Windkraft“ ist positiv, „Bundesliga-Rekord“ nicht.
+  - **Eindeutig positive Wendungen** („Population erholt“, „Wilderei gestoppt“, „Friedensabkommen“) zählen allein.
+  - **Negative Begriffe** („Krieg“, „Insolvenz“, „Hitzewelle“) ziehen ab. Ein **Umkehr-Wort** hebt sie auf: „Arbeitslosigkeit sinkt“, „Waldbrände verhindert“ und „Polio ausgerottet“ gelten als positiv.
+  - Klar negative Meldungen werden nie gespeichert. Im strengen Modus (Standard) erscheinen nur eindeutig positive. Jede Karte zeigt mit 🌱, warum die Meldung als positiv erkannt wurde.
+  - Alle Wortlisten stehen in `data.json` (`topics[].terms`, `topics[].strong`, `scoring`) und lassen sich dort erweitern. Die Regeln stehen in `scoring._info`.
 - **Duplikat-Vermeidung** über Stichwort-Matching: Titel werden normalisiert, Stoppwörter entfernt, Wortstämme verglichen. Ab 60 % Überschneidung gilt eine Meldung als Duplikat. Der Abgleich läuft auch nach der Übersetzung noch einmal, damit dieselbe Meldung aus BBC und Tagesschau nur einmal erscheint.
 - **IndexedDB**: Einstellungen, Nachrichten und Übersetzungen liegen lokal im Browser. Nachrichten älter als 30 Tage werden automatisch entfernt.
 - **Tägliche Benachrichtigung** zu einer wählbaren Uhrzeit (Browser-Benachrichtigung).

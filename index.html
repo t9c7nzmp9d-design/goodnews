@@ -253,6 +253,8 @@
       <h2>Themen</h2>
       <p class="hint">Worüber möchtest du gute Nachrichten lesen?</p>
       <div class="check-list cols" id="topicList"></div>
+      <h3>Weitere positive Themen</h3>
+      <div class="check-list cols" id="topicListExtra"></div>
       <form class="add-row" id="addTopicForm" autocomplete="off">
         <label class="sr-only" for="newTopic">Eigenes Thema</label>
         <input id="newTopic" placeholder="Eigenes Thema, z. B. Radverkehr" maxlength="60" required>
@@ -262,7 +264,7 @@
 
     <div class="section">
       <h2>Gute-Nachrichten-Filter</h2>
-      <p class="hint">Jede Schlagzeile wird auf positive Wirkung geprüft (z. B. „Durchbruch“, „gerettet“, „Rekord“) und gegen negative Begriffe (z. B. „Krieg“, „Anschlag“, „Krise“) abgewogen. Klar negative Meldungen werden nie gespeichert.</p>
+      <p class="hint">Jede Schlagzeile wird geprüft: Allgemeine Wörter wie „Rekord“ oder „Erfolg“ zählen nur zusammen mit einem Themen-Begriff („Rekord · Windkraft“). Eindeutig positive Wendungen wie „Population erholt“ zählen allein. Negative Begriffe wie „Krieg“ oder „Krise“ ziehen ab, außer sie werden umgekehrt („Arbeitslosigkeit sinkt“). Klar negative Meldungen werden nie gespeichert.</p>
       <div class="row">
         <label for="strictToggle">Streng: nur eindeutig positive Meldungen zeigen</label>
         <span class="switch"><input type="checkbox" id="strictToggle" role="switch"><span></span></span>
@@ -418,7 +420,7 @@ const state = {
   notify: { enabled: false, time: '07:30' },
   translate: { enabled: true, email: '' },
   strictPositive: true,   // nur eindeutig positive Meldungen anzeigen
-  lex: null,
+  scoring: null,
   theme: null,             // 'light' | 'dark' | null (System)
   lastFetch: 0,
   filter: 'all',
@@ -542,51 +544,95 @@ function parseRss(xmlText, task) {
   return out;
 }
 
-/* ---------- Positiv-Filter: Bewertung jeder Schlagzeile ---------- */
-const norm = (s) => String(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+/* ---------- Gute-Nachrichten-Filter: Bewertung jeder Schlagzeile ----------
+   Themen-Begriffe = Relevanz. Generische Wörter („Rekord“, „Erfolg“) zählen NUR zusammen mit einem Themen-Begriff.
+   Eindeutig positive Wendungen („Population erholt“) zählen allein. Negative Begriffe −2,
+   Umkehr-Wörter („sinkt“, „gestoppt“) neutralisieren sie. Details: data.json → scoring._info */
+const norm = (s) => String(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFKD').replace(/[̀-ͯ]/g, '');
+const PHRASE_STOP = new Set(['in', 'im', 'fur', 'der', 'die', 'das', 'den', 'dem', 'des', 'und', 'von', 'vom', 'auf', 'zu', 'zur', 'zum', 'mit', 'statt', 'als', 'x', 'the', 'of', 'for', 'and', 'to']);
+const tokenize = (text) => norm(text).split(/[^a-z0-9]+/).filter(Boolean);
 
-function compileLexicon(cfg) {
-  const lex = {};
-  for (const [lang, v] of Object.entries(cfg || {})) {
-    if (lang.startsWith('_')) continue;
-    const compile = (list) => {
-      const exact = new Set(), prefix = [], contains = [];
-      for (let w of list) {
-        w = norm(w);
-        if (w.startsWith('*') && w.endsWith('*')) contains.push(w.slice(1, -1));
-        else if (w.endsWith('*')) prefix.push(w.slice(0, -1));
-        else exact.add(w);
-      }
-      return { exact, prefix, contains };
-    };
-    lex[lang] = { pos: compile(v.positive || []), neg: compile(v.negative || []) };
-  }
-  return lex;
+function compileTerm(raw) {
+  const label = String(raw).replace(/\([^)]*\)/g, '').replace(/^[=*]+|\*+$/g, '').trim();
+  const comps = norm(String(raw).replace(/\([^)]*\)/g, ' ')).split(/[^a-z0-9*=]+/)
+    .filter(w => w && !PHRASE_STOP.has(w))
+    .map(w => {
+      if (w.startsWith('=')) return { w: w.slice(1), m: 'e' };
+      if (w.startsWith('*') && w.endsWith('*')) return { w: w.slice(1, -1), m: 'c' };
+      if (w.endsWith('*')) return { w: w.slice(0, -1), m: 'p' };
+      return { w, m: w.length <= 4 ? 'e' : w.length <= 6 ? 'p' : 'c' };
+    }).filter(c => c.w);
+  return { label, comps };
 }
+const compileList = (list) => (list || []).map(compileTerm).filter(t => t.comps.length);
+const compMatch = (c, tokens) => tokens.some(t => c.m === 'e' ? t === c.w : c.m === 'p' ? t.startsWith(c.w) : t.includes(c.w));
+const matchList = (list, tokens) => list.filter(t => t.comps.every(c => compMatch(c, tokens)));
 
-function scan(text, rules) {
-  const hits = [];
-  for (const orig of String(text).split(/[^\p{L}\p{N}]+/u)) {
-    const w = norm(orig);
-    if (w.length < 2) continue;
-    if (rules.exact.has(w) || rules.prefix.some(p => w.startsWith(p)) || rules.contains.some(c => w.includes(c))) hits.push(orig);
-  }
-  return hits;
-}
-
-/* Score = positive Treffer − 2 × negative Treffer (Original und deutsche Übersetzung) */
-function positivity(item) {
-  let pos = [], neg = [];
-  const check = (text, lang) => {
-    const L = state.lex?.[lang];
-    if (!L || !text) return;
-    const p = scan(text, L.pos), n = scan(text, L.neg);
-    if (p.length > pos.length) pos = p;
-    if (n.length > neg.length) neg = n;
+function compileScoring(cfg = {}) {
+  const foreign = {};
+  for (const [lang, v] of Object.entries(cfg.foreign || {})) foreign[lang] = { pos: compileList(v.positive), neg: compileList(v.negative) };
+  return {
+    generic: compileList(cfg.generic), weak: compileList(cfg.genericWeak), strong: compileList(cfg.strong),
+    negative: compileList(cfg.negative), exceptions: (cfg.negativeExceptions || []).map(norm),
+    problems: compileList(cfg.problems), reversers: compileList(cfg.reversers), foreign,
   };
-  check(item.originalTitle, item.lang);
-  if (item.title !== item.originalTitle) check(item.title, 'de');
-  return { score: pos.length - 2 * neg.length, pos, neg };
+}
+const topicCache = new WeakMap();
+function topicLists(t) {
+  if (!topicCache.has(t)) topicCache.set(t, { terms: compileList(t.terms?.length ? t.terms : [t.name]), strong: compileList(t.strong) });
+  return topicCache.get(t);
+}
+
+const scoreCache = new Map();
+function positivity(item) {
+  const key = item.link + '|' + item.title;
+  if (scoreCache.has(key)) return scoreCache.get(key);
+  const S = state.scoring;
+  let res;
+  const german = item.lang === 'de' || item.title !== item.originalTitle;
+  if (german) {
+    const tokens = tokenize(item.title);
+    const topicHits = {}, topicTerms = [], strong = [];
+    for (const t of allTopics()) {
+      const L = topicLists(t);
+      const m = matchList(L.terms, tokens), st = matchList(L.strong, tokens);
+      if (m.length || st.length) topicHits[t.id] = m.length + 2 * st.length;
+      topicTerms.push(...m); strong.push(...st);
+    }
+    strong.push(...matchList(S.strong, tokens));
+    const gen = matchList(S.generic, tokens), weak = matchList(S.weak, tokens);
+    const negTokens = tokens.filter(tok => !S.exceptions.some(e => tok.includes(e)));
+    let neg = matchList(S.negative, negTokens);
+    if (item.lang !== 'de' && S.foreign[item.lang]) {          // Original zusätzlich auf negative Begriffe prüfen
+      const n2 = matchList(S.foreign[item.lang].neg, tokenize(item.originalTitle));
+      if (n2.length > neg.length) neg = n2;
+    }
+    const prob = matchList(S.problems, tokens), rev = matchList(S.reversers, tokens);
+    const strongU = [...new Map(strong.map(t => [t.label, t])).values()];
+    const strongLabels = new Set(strongU.map(t => t.label));
+    // Umkehr-Punkt nur, wenn das Umkehr-Wort nicht schon als positive Wendung zählt (kein Doppeltzählen)
+    const revPts = rev.length && (neg.length || prob.length) && !rev.every(r => strongLabels.has(r.label)) ? 1 : 0;
+    const negEff = Math.max(0, neg.length - rev.length);
+    const genPts = topicTerms.length || strongU.length ? Math.min(2, gen.length + 0.5 * weak.length) : 0;   // generisch nur in Kombination
+    const score = Math.min(3, strongU.length) + genPts + revPts - 2 * negEff;
+    const reasons = [
+      ...strongU.map(t => t.label),
+      ...(revPts ? [[[...prob, ...neg][0]?.label, rev[0].label].filter(Boolean).join(' ')] : []),
+      ...(genPts ? [`${[...gen, ...weak][0].label} · ${(topicTerms[0] || strongU[0]).label}`] : []),
+    ];
+    const uniqReasons = [...new Set(reasons.map(r => r.toLowerCase()))].map(r => reasons.find(x => x.toLowerCase() === r));
+    reasons.splice(0, reasons.length, ...uniqReasons);
+    const best = Object.entries(topicHits).sort((a, b) => b[1] - a[1]);
+    res = { score, reasons, neg: neg.map(t => t.label), topicHits, bestTopic: best[0]?.[0] };
+  } else {
+    // Unübersetzte fremdsprachige Titel: einfache Wortlisten der Originalsprache
+    const L = S.foreign[item.lang];
+    const tokens = tokenize(item.originalTitle);
+    const pos = L ? matchList(L.pos, tokens) : [], neg = L ? matchList(L.neg, tokens) : [];
+    res = { score: pos.length - 2 * neg.length, reasons: pos.map(t => t.label), neg: neg.map(t => t.label), topicHits: {} };
+  }
+  scoreCache.set(key, res);
+  return res;
 }
 const minScore = () => (state.strictPositive ? 1 : 0);
 const isPositive = (item) => positivity(item).score >= minScore();
@@ -729,6 +775,9 @@ async function refreshNews({ manual = false } = {}) {
     if (item.translated && isDuplicate({ ...item, keywords: deKw }, germanPool)) continue;
     germanPool.push({ ...item, keywords: deKw });
     item.keywords = [...new Set([...item.keywords, ...deKw])];
+    // Thema neu zuordnen, wenn die Schlagzeile klar zu einem anderen gewählten Thema passt
+    const sc = positivity(item);
+    if (!sc.topicHits?.[item.topicId] && sc.bestTopic && state.selectedTopics.includes(sc.bestTopic)) item.topicId = sc.bestTopic;
     item.fetchedAt = Date.now();
     item.read = false;
     final.push(item);
@@ -817,7 +866,7 @@ function renderNews() {
       + (hiddenCount ? ` · ${hiddenCount} nicht eindeutig positive ausgeblendet` : '') : '';
   $('#newsList').innerHTML = list.map(n => {
     const topic = topicById(n.topicId);
-    const why = positivity(n).pos[0];
+    const why = positivity(n).reasons.slice(0, 2).join(', ');
     return `<li class="card${n.read ? ' read' : ''}" data-id="${esc(n.id)}">
       <div class="card-top">
         <span class="badge">${topic ? esc((topic.emoji ? topic.emoji + ' ' : '') + topic.name) : 'Sonstiges'}</span>
@@ -850,10 +899,12 @@ function checkItem({ id, label, sub, checked, removable, kind }) {
 }
 
 function renderTopics() {
-  $('#topicList').innerHTML = allTopics().map(t => checkItem({
+  const item = (t) => checkItem({
     id: t.id, kind: 'topic', label: `${t.emoji ? esc(t.emoji) + ' ' : ''}${esc(t.name)}`,
     checked: state.selectedTopics.includes(t.id), removable: !!t.custom,
-  })).join('');
+  });
+  $('#topicList').innerHTML = allTopics().filter(t => t.default !== false).map(item).join('');
+  $('#topicListExtra').innerHTML = allTopics().filter(t => t.default === false).map(item).join('');
 }
 
 function renderSources() {
@@ -1146,13 +1197,21 @@ async function init() {
   applyTheme();
   state.customTopics = await getSetting('customTopics', []);
   state.customSources = await getSetting('customSources', []);
-  state.selectedTopics = await getSetting('selectedTopics', c.topics.map(t => t.id));
+  const defaultTopics = c.topics.filter(t => t.default !== false).map(t => t.id);
+  state.selectedTopics = await getSetting('selectedTopics', defaultTopics);
+  // Neu hinzugekommene Standard-Themen automatisch aktivieren (bestehende Auswahl bleibt)
+  const known = await getSetting('knownTopics', null);
+  if (known) {
+    const added = defaultTopics.filter(id => !known.includes(id) && !state.selectedTopics.includes(id));
+    if (added.length) { state.selectedTopics.push(...added); await setSetting('selectedTopics', state.selectedTopics); }
+  }
+  await setSetting('knownTopics', c.topics.map(t => t.id));
   state.selectedSources = await getSetting('selectedSources', c.sources.map(s => s.id));
   state.notify = await getSetting('notify', state.notify);
   state.translate = await getSetting('translate', state.translate);
   state.lastFetch = await getSetting('lastFetch', 0);
   state.strictPositive = await getSetting('strictPositive', true);
-  state.lex = compileLexicon(c.positivity);
+  state.scoring = compileScoring(c.scoring);
 
   if ('serviceWorker' in navigator) {
     try {

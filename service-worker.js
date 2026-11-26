@@ -3,7 +3,7 @@
  * - Lokale Benachrichtigungen: tägliche Erinnerung über Periodic Background Sync (wo unterstützt)
  * Es werden keine Daten an einen eigenen Server gesendet.
  */
-const CACHE = 'goodnews-v2';
+const CACHE = 'goodnews-v3';
 const SHELL = [
   './',
   './index.html',
