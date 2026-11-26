@@ -2,7 +2,7 @@
   "version": 1,
   "searchWindow": "when:2d",
   "maxItemsPerQuery": 10,
-  "retentionDays": 30,
+  "maxAgeDays": 14,
   "maxStoredItems": 400,
   "languages": {
     "de": {

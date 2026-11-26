@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Über goodnews &amp; Datenschutz</title>
+<meta name="description" content="Wie goodnews funktioniert und welche Daten verarbeitet werden.">
+<meta name="theme-color" content="#2e9d5b" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1a14" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<script>
+  try { var t = localStorage.getItem('gn-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+  :root {
+    --bg: #f3f9f4; --surface: #ffffff; --surface-2: #e8f4ec; --text: #1b2a20; --muted: #5a6e61;
+    --border: #d4e6da; --primary: #2e9d5b; --primary-strong: #1f7a44; --on-primary: #ffffff; --accent: #f2b632;
+    --shadow: 0 1px 2px rgba(20, 60, 35, .06), 0 4px 14px rgba(20, 60, 35, .06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1a14; --surface: #16251c; --surface-2: #1d3226; --text: #e2efe6; --muted: #9bb3a4;
+      --border: #284434; --primary: #4cc47f; --primary-strong: #6bd896; --on-primary: #08130c; --accent: #f5c84f;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1a14; --surface: #16251c; --surface-2: #1d3226; --text: #e2efe6; --muted: #9bb3a4;
+    --border: #284434; --primary: #4cc47f; --primary-strong: #6bd896; --on-primary: #08130c; --accent: #f5c84f;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  a { color: var(--primary-strong); }
+  header.top {
+    position: sticky; top: 0; z-index: 10; background: var(--primary); color: var(--on-primary);
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow);
+  }
+  :root[data-theme="dark"] header.top { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--border); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) header.top { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--border); } }
+  .back {
+    width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: inherit;
+    background: rgba(255,255,255,.16); flex: none;
+  }
+  :root[data-theme="dark"] .back { background: var(--surface-2); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .back { background: var(--surface-2); } }
+  .back:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .back svg { width: 22px; height: 22px; }
+  header h1 { font-size: 1.15rem; margin: 0; flex: 1; min-width: 0; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px 16px 40px; }
+  nav.toc { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  nav.toc a {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); text-decoration: none;
+    padding: 6px 12px; border-radius: 999px; font-size: .9rem;
+  }
+  section.card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px;
+    box-shadow: var(--shadow); scroll-margin-top: 80px;
+  }
+  h2 { font-size: 1.2rem; margin: 0 0 8px; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { color: var(--text); }
+  .muted { color: var(--muted); font-size: .92rem; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+  .table-wrap { overflow-x: auto; margin: 8px 0; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: .92rem; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface-2); font-weight: 600; }
+  .highlight { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
+  .placeholder { background: color-mix(in srgb, var(--accent) 25%, transparent); border-radius: 6px; padding: 0 4px; }
+  code { background: var(--surface-2); padding: 1px 5px; border-radius: 6px; font-size: .9em; }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="./" aria-label="Zurück zur App">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  </a>
+  <h1>Über goodnews &amp; Datenschutz</h1>
+</header>
+
+<main>
+  <nav class="toc" aria-label="Inhalt">
+    <a href="#ueber">Über die App</a>
+    <a href="#funktion">So funktioniert's</a>
+    <a href="#datenschutz">Datenschutzerklärung</a>
+    <a href="#grenzen">Hinweise</a>
+  </nav>
+
+  <section class="card" id="ueber">
+    <h2>Über goodnews ☀️🌱</h2>
+    <p>goodnews sammelt täglich <strong>gute Nachrichten</strong> zu den Themen, die dir wichtig sind: Medizin, Klimaschutz, erneuerbare Energien, Artenschutz und mehr. Die App durchsucht nur die Quellen, die du ausgewählt hast, übersetzt fremdsprachige Schlagzeilen ins Deutsche und verlinkt jede Meldung auf den Originalartikel.</p>
+    <div class="highlight">
+      <strong>Kein Server, kein Konto, kein Tracking.</strong> Alles, was du einstellst, und alle gefundenen Nachrichten bleiben auf deinem Gerät.
+    </div>
+  </section>
+
+  <section class="card" id="funktion">
+    <h2>So funktioniert's</h2>
+    <h3>Suche</h3>
+    <p>Für jedes gewählte Thema fragt die App den Google-News-Feed ab, beschränkt auf deine Quellen und auf die letzten Tage. Das passiert einmal täglich beim Öffnen der App oder manuell über den Aktualisieren-Button.</p>
+    <h3>Gute-Nachrichten-Filter</h3>
+    <ul>
+      <li><strong>Themen-Begriffe</strong> (z. B. „Windkraft“, „Seeadler“) zeigen, worum es geht.</li>
+      <li><strong>Allgemeine Wörter</strong> wie „Rekord“ oder „Erfolg“ zählen nur zusammen mit einem Themen-Begriff. „Rekord · Windkraft“ ist positiv, „Bundesliga-Rekord“ nicht.</li>
+      <li><strong>Eindeutig positive Wendungen</strong> wie „Population erholt“ oder „Friedensabkommen“ zählen allein.</li>
+      <li><strong>Negative Begriffe</strong> wie „Krieg“ oder „Insolvenz“ ziehen ab. Wird ein Problem umgekehrt („Arbeitslosigkeit sinkt“), ist die Meldung positiv.</li>
+      <li>Jede Karte zeigt mit 🌱, warum sie als gute Nachricht erkannt wurde.</li>
+    </ul>
+    <h3>Aktualität</h3>
+    <p>Es werden nur Meldungen gezeigt, die <strong>höchstens 14 Tage alt</strong> sind (gemessen am Veröffentlichungsdatum). Ältere Meldungen löscht die App automatisch.</p>
+    <h3>Übersetzung &amp; Duplikate</h3>
+    <p>Fremdsprachige Schlagzeilen werden über den kostenlosen Dienst MyMemory übersetzt. Erscheint dieselbe Meldung in mehreren Medien, zeigt die App sie nur einmal an. Das erkennt sie an übereinstimmenden Stichwörtern, auch über Sprachgrenzen hinweg.</p>
+    <h3>Benachrichtigungen</h3>
+    <p>Wenn du es erlaubst, erinnert dich die App zur gewählten Uhrzeit an neue gute Nachrichten. Die Benachrichtigung erzeugt dein Browser lokal; es gibt keinen Push-Server.</p>
+  </section>
+
+  <section class="card" id="datenschutz">
+    <h2>Datenschutzerklärung</h2>
+    <p class="muted">Stand: 26. November 2026</p>
+
+    <h3>1. Verantwortlich</h3>
+    <p><span class="placeholder">[Name, Anschrift und E-Mail-Adresse der verantwortlichen Person eintragen]</span></p>
+
+    <h3>2. Grundsatz</h3>
+    <p>goodnews ist eine reine Browser-App (Progressive Web App). Es gibt <strong>keinen eigenen Server</strong>, keine Benutzerkonten, keine Cookies, keine Analyse- oder Tracking-Werkzeuge und keine Werbung. Der Betreiber der App erhält keine Daten über dich oder deine Nutzung.</p>
+
+    <h3>3. Bereitstellung der App (Hosting)</h3>
+    <p>Die App-Dateien werden über <strong>GitHub Pages</strong> (GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA) ausgeliefert. Beim Aufruf verarbeitet GitHub technisch notwendige Verbindungsdaten wie IP-Adresse, Zeitpunkt, aufgerufene Datei und Browser-Kennung, z. B. in Server-Logs zur Sicherheit und Fehleranalyse. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer sicheren und funktionsfähigen Bereitstellung). Eine Übermittlung in die USA ist möglich. Details: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener noreferrer" target="_blank">Datenschutzerklärung von GitHub</a>.</p>
+
+    <h3>4. Lokale Speicherung auf deinem Gerät</h3>
+    <p>Folgende Daten speichert die App ausschließlich lokal in deinem Browser (IndexedDB) und überträgt sie nirgendwohin:</p>
+    <ul>
+      <li>Einstellungen: gewählte Themen und Quellen, eigene Themen und Quellen, Benachrichtigungszeit, Dunkelmodus, Übersetzungs-Einstellungen</li>
+      <li>gefundene Nachrichten (Titel, Link, Quelle, Datum), automatisch gelöscht nach 14 Tagen</li>
+      <li>bereits übersetzte Schlagzeilen (Zwischenspeicher, damit nicht doppelt übersetzt wird)</li>
+    </ul>
+    <p>Zusätzlich steht die Theme-Wahl (hell/dunkel) im <code>localStorage</code>, damit die App beim Start nicht kurz aufblitzt. Der Service Worker speichert die App-Dateien im Browser-Cache, damit die App auch offline funktioniert.</p>
+
+    <h3>5. Datenübertragung an Drittanbieter</h3>
+    <p>Um Nachrichten zu finden und zu übersetzen, stellt die App <strong>direkt von deinem Gerät aus</strong> Anfragen an folgende Dienste. Dabei erhalten diese technisch bedingt deine <strong>IP-Adresse</strong> und die Kennung deines Browsers.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dienst</th><th>Übertragene Daten</th><th>Zweck</th></tr></thead>
+        <tbody>
+          <tr><td>CORS-Proxy: api.allorigins.win, ersatzweise corsproxy.io oder api.codetabs.com</td><td>Such-URL mit deinen Themen-Suchbegriffen und den Domains deiner Quellen</td><td>Weiterleitung der Nachrichtensuche (Browser dürfen fremde Feeds nicht direkt abrufen)</td></tr>
+          <tr><td>Google News (Google Ireland Ltd.), abgefragt durch den Proxy</td><td>Suchbegriffe und Quell-Domains, nicht deine IP-Adresse</td><td>Nachrichtensuche</td></tr>
+          <tr><td>MyMemory (Translated srl, Italien)</td><td>Fremdsprachige Schlagzeilen; Namen eigener Themen; <strong>optional</strong> deine E-Mail-Adresse, falls du sie für ein höheres Tageslimit einträgst</td><td>Übersetzung ins Deutsche</td></tr>
+          <tr><td>Nachrichtenseiten (z. B. Tagesschau, BBC)</td><td>Nur wenn du einen Artikel antippst</td><td>Lesen des Artikels</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b und f DSGVO: Die Abfragen sind nötig, damit die von dir gewünschte Funktion bereitgestellt wird. Die optionale E-Mail-Adresse für MyMemory überträgt die App nur mit deiner Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit in den Einstellungen löschen. Für die Datenverarbeitung dieser Dienste sind die jeweiligen Anbieter verantwortlich; es gelten deren Datenschutzerklärungen.</p>
+    <p>Du kannst die Übersetzung in den Einstellungen abschalten; dann wird MyMemory nicht mehr kontaktiert. Einzige Ausnahme: Fügst du ein eigenes Thema hinzu, werden dessen Suchbegriffe einmalig übersetzt.</p>
+
+    <h3>6. Benachrichtigungen</h3>
+    <p>Benachrichtigungen werden nur nach deiner ausdrücklichen Erlaubnis im Browser angezeigt und lokal erzeugt. Es wird keine Push-Kennung an einen Server übermittelt. Die Erlaubnis kannst du jederzeit in den Browser- bzw. Systemeinstellungen widerrufen.</p>
+
+    <h3>7. Löschen deiner Daten</h3>
+    <ul>
+      <li>In der App: <em>Einstellungen → Daten &amp; Datenschutz → „Alles zurücksetzen“</em> löscht alle lokal gespeicherten Daten.</li>
+      <li>Alternativ: App deinstallieren oder die Website-Daten im Browser löschen.</li>
+    </ul>
+
+    <h3>8. Deine Rechte</h3>
+    <p>Du hast nach der DSGVO das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20), Widerspruch (Art. 21) sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde (Art. 77). Da der Betreiber von goodnews selbst keine personenbezogenen Daten von dir erhält, richten sich diese Rechte in der Praxis an die oben genannten Drittanbieter.</p>
+  </section>
+
+  <section class="card" id="grenzen">
+    <h2>Hinweise &amp; Grenzen</h2>
+    <ul>
+      <li>Der Gute-Nachrichten-Filter arbeitet mit Wortlisten. Er ist nicht perfekt: Gelegentlich rutscht eine neutrale Meldung durch oder eine gute fehlt.</li>
+      <li>Für die Inhalte der verlinkten Artikel sind die jeweiligen Medien verantwortlich.</li>
+      <li>Hintergrund-Benachrichtigungen funktionieren je nach Browser unterschiedlich zuverlässig. Auf dem iPhone kommt die Erinnerung nur, wenn die App geöffnet ist.</li>
+      <li>Quellcode: <a href="https://github.com/t9c7nzmp9d-design/goodnews" rel="noopener noreferrer" target="_blank">github.com/t9c7nzmp9d-design/goodnews</a> (MIT-Lizenz)</li>
+    </ul>
+  </section>
+
+  <p class="muted" style="text-align:center"><a href="./">← Zurück zu den guten Nachrichten</a></p>
+</main>
+</body>
+</html>

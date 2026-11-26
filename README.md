@@ -20,7 +20,7 @@ Eine Progressive Web App (PWA), die täglich **gute Nachrichten** zu selbst gew�
   - Klar negative Meldungen werden nie gespeichert. Im strengen Modus (Standard) erscheinen nur eindeutig positive. Jede Karte zeigt mit 🌱, warum die Meldung als positiv erkannt wurde.
   - Alle Wortlisten stehen in `data.json` (`topics[].terms`, `topics[].strong`, `scoring`) und lassen sich dort erweitern. Die Regeln stehen in `scoring._info`.
 - **Duplikat-Vermeidung** über Stichwort-Matching: Titel werden normalisiert, Stoppwörter entfernt, Wortstämme verglichen. Ab 60 % Überschneidung gilt eine Meldung als Duplikat. Der Abgleich läuft auch nach der Übersetzung noch einmal, damit dieselbe Meldung aus BBC und Tagesschau nur einmal erscheint.
-- **IndexedDB**: Einstellungen, Nachrichten und Übersetzungen liegen lokal im Browser. Nachrichten älter als 30 Tage werden automatisch entfernt.
+- **IndexedDB**: Einstellungen, Nachrichten und Übersetzungen liegen lokal im Browser. Es werden nur **aktuelle Meldungen** gezeigt: Alles, was älter als 14 Tage ist (Veröffentlichungsdatum), wird weder gespeichert noch angezeigt und automatisch gelöscht (`maxAgeDays` in `data.json`).
 - **Tägliche Benachrichtigung** zu einer wählbaren Uhrzeit (Browser-Benachrichtigung).
 - **Dunkelmodus** per Sonne/Mond-Button. Die Wahl wird in IndexedDB gespeichert. Ohne eigene Wahl folgt die App der Systemeinstellung.
 - **Offline-fähig**: Die App-Shell wird vom Service Worker gecacht, gespeicherte Nachrichten sind auch ohne Netz lesbar.
@@ -31,6 +31,7 @@ Eine Progressive Web App (PWA), die täglich **gute Nachrichten** zu selbst gew�
 | Datei | Zweck |
 |---|---|
 | `index.html` | Die komplette App (HTML + inline CSS/JS) |
+| `datenschutz.html` | Eigene Seite „Über goodnews & Datenschutzerklärung“, verlinkt aus der App (Einstellungen und Fußzeile) |
 | `manifest.json` | PWA-Konfiguration (Name, Icons, Farben) |
 | `service-worker.js` | Offline-Cache, tägliche Erinnerung (Periodic Background Sync), Klick auf Benachrichtigung |
 | `data.json` | Vorlage: Themen inkl. Suchbegriffen je Sprache, Quellen, Sprach-Einstellungen, Schema einer News |
@@ -69,6 +70,8 @@ Ohne Backend gibt es keine echten Server-Push-Nachrichten. Die App nutzt daher l
 Die Suche selbst läuft immer in der geöffneten App, spätestens beim Antippen der Benachrichtigung.
 
 ## Datenschutz
+
+Die vollständige Datenschutzerklärung steht in der App unter **Einstellungen → Über goodnews & Datenschutzerklärung** (`datenschutz.html`). Bitte dort unter „1. Verantwortlich“ Name, Anschrift und E-Mail eintragen. Die App wird über GitHub Pages ausgeliefert; dabei verarbeitet GitHub Verbindungsdaten (IP-Adresse) in Server-Logs.
 
 **Kurz gesagt: Deine Daten bleiben auf deinem Gerät.**
 
