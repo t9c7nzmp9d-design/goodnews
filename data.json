@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "searchWindow": "when:2d",
+  "maxItemsPerQuery": 6,
+  "retentionDays": 30,
+  "maxStoredItems": 400,
+  "languages": {
+    "de": { "label": "Deutsch",     "hl": "de",    "gl": "DE", "ceid": "DE:de", "exclude": ["Krieg", "Tote", "Anschlag", "Terror", "Mord"] },
+    "en": { "label": "Englisch",    "hl": "en-GB", "gl": "GB", "ceid": "GB:en", "exclude": ["war", "killed", "attack", "dead", "murder"] },
+    "fr": { "label": "Französisch", "hl": "fr",    "gl": "FR", "ceid": "FR:fr", "exclude": ["guerre", "morts", "attentat", "meurtre"] },
+    "es": { "label": "Spanisch",    "hl": "es",    "gl": "ES", "ceid": "ES:es", "exclude": ["guerra", "muertos", "atentado", "asesinato"] }
+  },
+  "topics": [
+    {
+      "id": "medizin", "name": "Medizin & Gesundheit", "emoji": "🩺",
+      "keywords": {
+        "de": "(Medizin OR Therapie OR Impfstoff OR Heilung) (Durchbruch OR Erfolg OR Fortschritt)",
+        "en": "(medicine OR treatment OR vaccine OR cure) (breakthrough OR success OR progress)",
+        "fr": "(médecine OR traitement OR vaccin) (percée OR succès OR progrès)",
+        "es": "(medicina OR tratamiento OR vacuna) (avance OR éxito OR logro)"
+      }
+    },
+    {
+      "id": "umwelt", "name": "Umwelt & Klimaschutz", "emoji": "🌍",
+      "keywords": {
+        "de": "(Klimaschutz OR Umweltschutz OR Aufforstung) (Erfolg OR Fortschritt OR gelungen)",
+        "en": "(climate OR environment OR reforestation) (success OR progress OR milestone)",
+        "fr": "(climat OR environnement) (succès OR progrès)",
+        "es": "(clima OR medio ambiente) (éxito OR avance)"
+      }
+    },
+    {
+      "id": "energie", "name": "Erneuerbare Energien", "emoji": "☀️",
+      "keywords": {
+        "de": "(Solarenergie OR Windkraft OR \"erneuerbare Energien\" OR Wärmepumpe) (Rekord OR Ausbau OR Durchbruch)",
+        "en": "(solar OR wind power OR renewables) (record OR breakthrough OR milestone)",
+        "fr": "(solaire OR éolien OR renouvelables) (record OR succès)",
+        "es": "(solar OR eólica OR renovables) (récord OR éxito)"
+      }
+    },
+    {
+      "id": "artenschutz", "name": "Artenschutz & Biodiversität", "emoji": "🦋",
+      "keywords": {
+        "de": "(Artenschutz OR Biodiversität OR Naturschutz) (zurück OR Erfolg OR erholt)",
+        "en": "(conservation OR biodiversity OR endangered species) (recovery OR comeback OR success)",
+        "fr": "(biodiversité OR espèce protégée) (retour OR succès)",
+        "es": "(biodiversidad OR especie protegida) (recuperación OR éxito)"
+      }
+    },
+    {
+      "id": "technologie", "name": "Technologie für Gutes", "emoji": "💡",
+      "keywords": {
+        "de": "(Innovation OR Erfindung OR Technologie) (hilft OR rettet OR nachhaltig)",
+        "en": "(innovation OR invention OR technology) (helps OR saves OR sustainable)",
+        "fr": "(innovation OR technologie) (aide OR sauve OR durable)",
+        "es": "(innovación OR tecnología) (ayuda OR salva OR sostenible)"
+      }
+    },
+    {
+      "id": "menschenrechte", "name": "Menschenrechte & Humanitäre Hilfe", "emoji": "🤝",
+      "keywords": {
+        "de": "(Menschenrechte OR \"humanitäre Hilfe\" OR Hilfsprojekt) (Erfolg OR freigelassen OR geholfen)",
+        "en": "(human rights OR humanitarian aid) (success OR freed OR victory)",
+        "fr": "(droits humains OR aide humanitaire) (succès OR libéré)",
+        "es": "(derechos humanos OR ayuda humanitaria) (éxito OR liberado)"
+      }
+    },
+    {
+      "id": "bildung", "name": "Bildung & Wissenstransfer", "emoji": "📚",
+      "keywords": {
+        "de": "(Bildung OR Schule OR Forschung) (Erfolg OR Initiative OR Durchbruch)",
+        "en": "(education OR school OR literacy) (success OR initiative OR improvement)",
+        "fr": "(éducation OR école) (succès OR initiative)",
+        "es": "(educación OR escuela) (éxito OR iniciativa)"
+      }
+    },
+    {
+      "id": "armut", "name": "Armutsbekämpfung", "emoji": "🌱",
+      "keywords": {
+        "de": "(Armut OR Hunger) (gesunken OR Rückgang OR Erfolg OR bekämpft)",
+        "en": "(poverty OR hunger) (decline OR fall OR reduced OR success)",
+        "fr": "(pauvreté OR faim) (recul OR baisse OR succès)",
+        "es": "(pobreza OR hambre) (reducción OR descenso OR éxito)"
+      }
+    }
+  ],
+  "sources": [
+    { "id": "tagesschau",   "name": "Tagesschau",      "domain": "tagesschau.de",     "lang": "de", "group": "de" },
+    { "id": "zeit",         "name": "ZEIT",            "domain": "zeit.de",           "lang": "de", "group": "de" },
+    { "id": "faz",          "name": "FAZ",             "domain": "faz.net",           "lang": "de", "group": "de" },
+    { "id": "sz",           "name": "Süddeutsche",     "domain": "sueddeutsche.de",   "lang": "de", "group": "de" },
+    { "id": "spiegel",      "name": "Spiegel",         "domain": "spiegel.de",        "lang": "de", "group": "de" },
+    { "id": "dpa",          "name": "dpa",             "domain": "dpa.com",           "lang": "de", "group": "de" },
+    { "id": "nzz",          "name": "NZZ",             "domain": "nzz.ch",            "lang": "de", "group": "de" },
+    { "id": "reuters",      "name": "Reuters",         "domain": "reuters.com",       "lang": "en", "group": "int" },
+    { "id": "ap",           "name": "AP",              "domain": "apnews.com",        "lang": "en", "group": "int" },
+    { "id": "bbc",          "name": "BBC",             "domain": "bbc.com",           "lang": "en", "group": "int" },
+    { "id": "guardian",     "name": "Guardian",        "domain": "theguardian.com",   "lang": "en", "group": "int" },
+    { "id": "lemonde",      "name": "Le Monde",        "domain": "lemonde.fr",        "lang": "fr", "group": "int" },
+    { "id": "elpais",       "name": "El País",         "domain": "elpais.com",        "lang": "es", "group": "int" },
+    { "id": "cleanthinking","name": "cleanthinking.de","domain": "cleanthinking.de",  "lang": "de", "group": "special" },
+    { "id": "wwf",          "name": "WWF",             "domain": "wwf.de",            "lang": "de", "group": "special" },
+    { "id": "medscape",     "name": "Medscape",        "domain": "medscape.com",      "lang": "en", "group": "special" }
+  ],
+  "newsTemplate": {
+    "id": "string – Hash aus dem Artikel-Link",
+    "title": "string – Titel (übersetzt ins Deutsche, falls nötig)",
+    "originalTitle": "string – Titel in Originalsprache",
+    "lang": "de | en | fr | es",
+    "translated": "boolean",
+    "link": "string – URL zum Artikel",
+    "sourceName": "string – z. B. Tagesschau",
+    "sourceUrl": "string – Startseite der Quelle",
+    "topicId": "string – ID des Themas",
+    "pubDate": "number – Veröffentlichung (ms seit 1970)",
+    "fetchedAt": "number – Abrufzeitpunkt (ms seit 1970)",
+    "keywords": "string[] – normalisierte Stichwörter zur Duplikat-Erkennung",
+    "read": "boolean"
+  }
+}
