@@ -119,6 +119,7 @@
   .card.read { opacity: .72; }
   .card-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; font-size: .8rem; color: var(--muted); }
   .badge { background: var(--surface-2); color: var(--primary-strong); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .badge.good { background: transparent; color: var(--primary-strong); font-weight: 500; }
   .badge.lang { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; }
   .card h3 { margin: 0 0 8px; font-size: 1.05rem; line-height: 1.35; }
   .card h3 a { color: var(--text); text-decoration: none; }
@@ -257,6 +258,15 @@
         <input id="newTopic" placeholder="Eigenes Thema, z. B. Radverkehr" maxlength="60" required>
         <button class="btn" type="submit">Hinzufügen</button>
       </form>
+    </div>
+
+    <div class="section">
+      <h2>Gute-Nachrichten-Filter</h2>
+      <p class="hint">Jede Schlagzeile wird auf positive Wirkung geprüft (z. B. „Durchbruch“, „gerettet“, „Rekord“) und gegen negative Begriffe (z. B. „Krieg“, „Anschlag“, „Krise“) abgewogen. Klar negative Meldungen werden nie gespeichert.</p>
+      <div class="row">
+        <label for="strictToggle">Streng: nur eindeutig positive Meldungen zeigen</label>
+        <span class="switch"><input type="checkbox" id="strictToggle" role="switch"><span></span></span>
+      </div>
     </div>
 
     <div class="section">
@@ -407,6 +417,8 @@ const state = {
   customSources: [],
   notify: { enabled: false, time: '07:30' },
   translate: { enabled: true, email: '' },
+  strictPositive: true,   // nur eindeutig positive Meldungen anzeigen
+  lex: null,
   theme: null,             // 'light' | 'dark' | null (System)
   lastFetch: 0,
   filter: 'all',
@@ -495,7 +507,8 @@ function domainMatches(host, domain) { return host === domain || host.endsWith('
 
 function buildQueryUrl(topic, lang, domains) {
   const L = state.config.languages[lang];
-  const kw = (topic.keywords && (topic.keywords[lang] || topic.keywords.de)) || topic.name;
+  let kw = (topic.keywords && (topic.keywords[lang] || topic.keywords.de)) || topic.name;
+  if (topic.custom && L.positiveQuery) kw += ' ' + L.positiveQuery;   // eigene Themen ebenfalls positiv ausrichten
   const sites = domains.map(d => 'site:' + d).join(' OR ');
   const excl = (L.exclude || []).map(w => '-' + w).join(' ');
   const q = `${kw} (${sites}) ${excl} ${state.config.searchWindow || 'when:2d'}`.replace(/\s+/g, ' ').trim();
@@ -528,6 +541,55 @@ function parseRss(xmlText, task) {
   }
   return out;
 }
+
+/* ---------- Positiv-Filter: Bewertung jeder Schlagzeile ---------- */
+const norm = (s) => String(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+
+function compileLexicon(cfg) {
+  const lex = {};
+  for (const [lang, v] of Object.entries(cfg || {})) {
+    if (lang.startsWith('_')) continue;
+    const compile = (list) => {
+      const exact = new Set(), prefix = [], contains = [];
+      for (let w of list) {
+        w = norm(w);
+        if (w.startsWith('*') && w.endsWith('*')) contains.push(w.slice(1, -1));
+        else if (w.endsWith('*')) prefix.push(w.slice(0, -1));
+        else exact.add(w);
+      }
+      return { exact, prefix, contains };
+    };
+    lex[lang] = { pos: compile(v.positive || []), neg: compile(v.negative || []) };
+  }
+  return lex;
+}
+
+function scan(text, rules) {
+  const hits = [];
+  for (const orig of String(text).split(/[^\p{L}\p{N}]+/u)) {
+    const w = norm(orig);
+    if (w.length < 2) continue;
+    if (rules.exact.has(w) || rules.prefix.some(p => w.startsWith(p)) || rules.contains.some(c => w.includes(c))) hits.push(orig);
+  }
+  return hits;
+}
+
+/* Score = positive Treffer − 2 × negative Treffer (Original und deutsche Übersetzung) */
+function positivity(item) {
+  let pos = [], neg = [];
+  const check = (text, lang) => {
+    const L = state.lex?.[lang];
+    if (!L || !text) return;
+    const p = scan(text, L.pos), n = scan(text, L.neg);
+    if (p.length > pos.length) pos = p;
+    if (n.length > neg.length) neg = n;
+  };
+  check(item.originalTitle, item.lang);
+  if (item.title !== item.originalTitle) check(item.title, 'de');
+  return { score: pos.length - 2 * neg.length, pos, neg };
+}
+const minScore = () => (state.strictPositive ? 1 : 0);
+const isPositive = (item) => positivity(item).score >= minScore();
 
 /* ---------- Duplikat-Vermeidung (Stichwort-Matching) ---------- */
 const STOPWORDS = new Set(('aber alle allem allen aller alles also auch auf aus bei beim bereits bis dass dabei damit dann darauf daran darum das dass dem den denen der des die dies diese diesem diesen dieser dieses doch dort durch eine einem einen einer eines erst etwa für gegen hat hatte haben hier ihre ihren immer jetzt kann kein keine mehr mit nach neue neuen neuer neues nicht noch nun oder ohne schon sehr sein seine sich sie sind soll sollen über um und uns unter vom von vor war waren was weil weiter wenn werden wie wieder will wird wurde wurden zum zur zwei drei ' +
@@ -642,7 +704,9 @@ async function refreshNews({ manual = false } = {}) {
   // Duplikate entfernen (Link + Stichwörter der Originaltitel)
   const existing = await DB.all('news');
   const accepted = [];
+  const rejected = new Set();   // Links aussortierter Meldungen (jede nur einmal zählen)
   for (const item of found.sort((a, b) => b.pubDate - a.pubDate)) {
+    if (positivity(item).score < 0) { rejected.add(item.link); continue; }   // klar negativ → gar nicht erst speichern/übersetzen
     item.id = hashId(item.link);
     item.keywords = keywordsOf(item.originalTitle);
     if (isDuplicate(item, existing) || isDuplicate(item, accepted)) continue;
@@ -660,6 +724,7 @@ async function refreshNews({ manual = false } = {}) {
       const t = await translate(item.originalTitle, item.lang);
       if (t) { item.title = t; item.translated = true; }
     }
+    if (positivity(item).score < 0) { rejected.add(item.link); continue; }
     const deKw = keywordsOf(item.title);
     if (item.translated && isDuplicate({ ...item, keywords: deKw }, germanPool)) continue;
     germanPool.push({ ...item, keywords: deKw });
@@ -681,7 +746,9 @@ async function refreshNews({ manual = false } = {}) {
   if (failed === tasks.length) {
     setStatus('Die Suche hat gerade nicht geklappt (Netzwerk oder Proxy nicht erreichbar). Bitte später erneut versuchen.', null, true);
   } else {
-    let msg = final.length ? `${final.length} neue gute Nachricht${final.length === 1 ? '' : 'en'} gefunden 🌱` : 'Keine neuen Nachrichten – alles schon bekannt.';
+    const good = final.filter(isPositive).length;
+    let msg = good ? `${good} neue gute Nachricht${good === 1 ? '' : 'en'} gefunden 🌱` : 'Keine neuen guten Nachrichten – alles schon bekannt.';
+    if (rejected.size) msg += ` ${rejected.size} negative Meldung${rejected.size === 1 ? '' : 'en'} aussortiert.`;
     if (translateQuotaHit) msg += ' (Übersetzungs-Tageslimit erreicht, einige Titel im Original.)';
     setStatus(msg);
     setTimeout(() => { if (!state.busy) $('#status').hidden = true; }, 6000);
@@ -724,7 +791,7 @@ function relTime(ts) {
 }
 
 function renderFilterChips() {
-  const usedTopics = new Set(state.news.map(n => n.topicId));
+  const usedTopics = new Set(state.news.filter(isPositive).map(n => n.topicId));
   const topics = allTopics().filter(t => usedTopics.has(t.id));
   if (state.filter !== 'all' && !usedTopics.has(state.filter)) state.filter = 'all';
   const chips = [{ id: 'all', name: 'Alle' }, ...topics];
@@ -734,8 +801,10 @@ function renderFilterChips() {
 
 function renderNews() {
   renderFilterChips();
-  const list = state.filter === 'all' ? state.news : state.news.filter(n => n.topicId === state.filter);
-  const empty = !state.news.length;
+  const positive = state.news.filter(isPositive);
+  const hiddenCount = state.news.length - positive.length;
+  const list = state.filter === 'all' ? positive : positive.filter(n => n.topicId === state.filter);
+  const empty = !positive.length;
   $('#emptyState').hidden = !empty;
   if (empty) {
     $('#emptyTitle').textContent = state.lastFetch ? 'Gerade keine guten Nachrichten gefunden' : 'Willkommen bei goodnews ☀️';
@@ -744,13 +813,16 @@ function renderNews() {
       : 'Wähle deine Themen und Quellen in den Einstellungen – oder starte direkt die erste Suche.';
   }
   $('#metaLine').textContent = state.lastFetch && !empty
-    ? `${list.length} Nachricht${list.length === 1 ? '' : 'en'} · zuletzt aktualisiert ${relTime(state.lastFetch)}` : '';
+    ? `${list.length} gute Nachricht${list.length === 1 ? '' : 'en'} · zuletzt aktualisiert ${relTime(state.lastFetch)}`
+      + (hiddenCount ? ` · ${hiddenCount} nicht eindeutig positive ausgeblendet` : '') : '';
   $('#newsList').innerHTML = list.map(n => {
     const topic = topicById(n.topicId);
+    const why = positivity(n).pos[0];
     return `<li class="card${n.read ? ' read' : ''}" data-id="${esc(n.id)}">
       <div class="card-top">
         <span class="badge">${topic ? esc((topic.emoji ? topic.emoji + ' ' : '') + topic.name) : 'Sonstiges'}</span>
         ${n.lang !== 'de' ? `<span class="badge lang" title="Originalsprache">${n.translated ? 'übersetzt aus ' : ''}${LANG_SHORT[n.lang] || n.lang}</span>` : ''}
+        ${why ? `<span class="badge good" title="Als positiv erkannt durch dieses Stichwort">🌱 ${esc(why)}</span>` : ''}
         <time datetime="${new Date(n.pubDate).toISOString()}">${relTime(n.pubDate)}</time>
       </div>
       <h3><a href="${esc(n.link)}" target="_blank" rel="noopener noreferrer" data-read="${esc(n.id)}">${esc(n.title)}</a></h3>
@@ -803,6 +875,7 @@ function renderSettings() {
   $('#notifyToggle').checked = state.notify.enabled;
   $('#notifyTime').value = state.notify.time;
   $('#translateToggle').checked = state.translate.enabled;
+  $('#strictToggle').checked = state.strictPositive;
   $('#mmEmail').value = state.translate.email || '';
   $('#newSourceLang').innerHTML = Object.entries(state.config.languages)
     .map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('');
@@ -1015,6 +1088,11 @@ function bindEvents() {
     await showNotification('goodnews ☀️', 'So sieht deine tägliche Erinnerung aus. Schönen Tag!');
   };
 
+  $('#strictToggle').onchange = async (e) => {
+    state.strictPositive = e.target.checked;
+    await setSetting('strictPositive', state.strictPositive);
+    renderNews();
+  };
   $('#translateToggle').onchange = async (e) => {
     state.translate.enabled = e.target.checked;
     await setSetting('translate', state.translate);
@@ -1073,6 +1151,8 @@ async function init() {
   state.notify = await getSetting('notify', state.notify);
   state.translate = await getSetting('translate', state.translate);
   state.lastFetch = await getSetting('lastFetch', 0);
+  state.strictPositive = await getSetting('strictPositive', true);
+  state.lex = compileLexicon(c.positivity);
 
   if ('serviceWorker' in navigator) {
     try {

@@ -1,9 +1,9 @@
 /* goodnews – Service Worker
- * - Offline: App-Shell wird gecacht (Cache-first, im Hintergrund aktualisiert)
+ * - Offline: App-Shell wird gecacht (Network-first, Cache als Offline-Fallback)
  * - Lokale Benachrichtigungen: tägliche Erinnerung über Periodic Background Sync (wo unterstützt)
  * Es werden keine Daten an einen eigenen Server gesendet.
  */
-const CACHE = 'goodnews-v1';
+const CACHE = 'goodnews-v2';
 const SHELL = [
   './',
   './index.html',
@@ -34,19 +34,18 @@ self.addEventListener('fetch', (event) => {
   // Nur eigene Dateien cachen – externe Anfragen (Proxys, Übersetzung) gehen direkt ins Netz
   if (url.origin !== self.location.origin) return;
 
+  // Network-first: immer die aktuelle Version laden, offline auf den Cache zurückfallen
   event.respondWith(
-    caches.match(req, { ignoreSearch: req.mode === 'navigate' }).then((cached) => {
-      const network = fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached || (req.mode === 'navigate' ? caches.match('./index.html') : undefined));
-      return cached || network;
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req, { ignoreSearch: true })
+        .then((cached) => cached || (req.mode === 'navigate' ? caches.match('./index.html') : undefined)))
   );
 });
 

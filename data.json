@@ -5,14 +5,78 @@
   "retentionDays": 30,
   "maxStoredItems": 400,
   "languages": {
-    "de": { "label": "Deutsch",     "hl": "de",    "gl": "DE", "ceid": "DE:de", "exclude": ["Krieg", "Tote", "Anschlag", "Terror", "Mord"] },
-    "en": { "label": "Englisch",    "hl": "en-GB", "gl": "GB", "ceid": "GB:en", "exclude": ["war", "killed", "attack", "dead", "murder"] },
-    "fr": { "label": "Französisch", "hl": "fr",    "gl": "FR", "ceid": "FR:fr", "exclude": ["guerre", "morts", "attentat", "meurtre"] },
-    "es": { "label": "Spanisch",    "hl": "es",    "gl": "ES", "ceid": "ES:es", "exclude": ["guerra", "muertos", "atentado", "asesinato"] }
+    "de": {
+      "label": "Deutsch",
+      "hl": "de",
+      "gl": "DE",
+      "ceid": "DE:de",
+      "exclude": [
+        "Krieg",
+        "Tote",
+        "Anschlag",
+        "Terror",
+        "Mord",
+        "Unfall",
+        "Katastrophe",
+        "Skandal",
+        "Angriff"
+      ],
+      "positiveQuery": "(Erfolg OR Durchbruch OR Fortschritt OR gelungen OR Rekord OR hilft)"
+    },
+    "en": {
+      "label": "Englisch",
+      "hl": "en-GB",
+      "gl": "GB",
+      "ceid": "GB:en",
+      "exclude": [
+        "war",
+        "killed",
+        "attack",
+        "dead",
+        "murder",
+        "crash",
+        "disaster",
+        "scandal",
+        "shooting"
+      ],
+      "positiveQuery": "(success OR breakthrough OR progress OR milestone OR record OR helps)"
+    },
+    "fr": {
+      "label": "Französisch",
+      "hl": "fr",
+      "gl": "FR",
+      "ceid": "FR:fr",
+      "exclude": [
+        "guerre",
+        "morts",
+        "attentat",
+        "meurtre",
+        "catastrophe",
+        "scandale"
+      ],
+      "positiveQuery": "(succès OR percée OR progrès OR record OR aide)"
+    },
+    "es": {
+      "label": "Spanisch",
+      "hl": "es",
+      "gl": "ES",
+      "ceid": "ES:es",
+      "exclude": [
+        "guerra",
+        "muertos",
+        "atentado",
+        "asesinato",
+        "catástrofe",
+        "escándalo"
+      ],
+      "positiveQuery": "(éxito OR avance OR progreso OR récord OR ayuda)"
+    }
   },
   "topics": [
     {
-      "id": "medizin", "name": "Medizin & Gesundheit", "emoji": "🩺",
+      "id": "medizin",
+      "name": "Medizin & Gesundheit",
+      "emoji": "🩺",
       "keywords": {
         "de": "(Medizin OR Therapie OR Impfstoff OR Heilung) (Durchbruch OR Erfolg OR Fortschritt)",
         "en": "(medicine OR treatment OR vaccine OR cure) (breakthrough OR success OR progress)",
@@ -21,7 +85,9 @@
       }
     },
     {
-      "id": "umwelt", "name": "Umwelt & Klimaschutz", "emoji": "🌍",
+      "id": "umwelt",
+      "name": "Umwelt & Klimaschutz",
+      "emoji": "🌍",
       "keywords": {
         "de": "(Klimaschutz OR Umweltschutz OR Aufforstung) (Erfolg OR Fortschritt OR gelungen)",
         "en": "(climate OR environment OR reforestation) (success OR progress OR milestone)",
@@ -30,7 +96,9 @@
       }
     },
     {
-      "id": "energie", "name": "Erneuerbare Energien", "emoji": "☀️",
+      "id": "energie",
+      "name": "Erneuerbare Energien",
+      "emoji": "☀️",
       "keywords": {
         "de": "(Solarenergie OR Windkraft OR \"erneuerbare Energien\" OR Wärmepumpe) (Rekord OR Ausbau OR Durchbruch)",
         "en": "(solar OR wind power OR renewables) (record OR breakthrough OR milestone)",
@@ -39,7 +107,9 @@
       }
     },
     {
-      "id": "artenschutz", "name": "Artenschutz & Biodiversität", "emoji": "🦋",
+      "id": "artenschutz",
+      "name": "Artenschutz & Biodiversität",
+      "emoji": "🦋",
       "keywords": {
         "de": "(Artenschutz OR Biodiversität OR Naturschutz) (zurück OR Erfolg OR erholt)",
         "en": "(conservation OR biodiversity OR endangered species) (recovery OR comeback OR success)",
@@ -48,7 +118,9 @@
       }
     },
     {
-      "id": "technologie", "name": "Technologie für Gutes", "emoji": "💡",
+      "id": "technologie",
+      "name": "Technologie für Gutes",
+      "emoji": "💡",
       "keywords": {
         "de": "(Innovation OR Erfindung OR Technologie) (hilft OR rettet OR nachhaltig)",
         "en": "(innovation OR invention OR technology) (helps OR saves OR sustainable)",
@@ -57,7 +129,9 @@
       }
     },
     {
-      "id": "menschenrechte", "name": "Menschenrechte & Humanitäre Hilfe", "emoji": "🤝",
+      "id": "menschenrechte",
+      "name": "Menschenrechte & Humanitäre Hilfe",
+      "emoji": "🤝",
       "keywords": {
         "de": "(Menschenrechte OR \"humanitäre Hilfe\" OR Hilfsprojekt) (Erfolg OR freigelassen OR geholfen)",
         "en": "(human rights OR humanitarian aid) (success OR freed OR victory)",
@@ -66,7 +140,9 @@
       }
     },
     {
-      "id": "bildung", "name": "Bildung & Wissenstransfer", "emoji": "📚",
+      "id": "bildung",
+      "name": "Bildung & Wissenstransfer",
+      "emoji": "📚",
       "keywords": {
         "de": "(Bildung OR Schule OR Forschung) (Erfolg OR Initiative OR Durchbruch)",
         "en": "(education OR school OR literacy) (success OR initiative OR improvement)",
@@ -75,7 +151,9 @@
       }
     },
     {
-      "id": "armut", "name": "Armutsbekämpfung", "emoji": "🌱",
+      "id": "armut",
+      "name": "Armutsbekämpfung",
+      "emoji": "🌱",
       "keywords": {
         "de": "(Armut OR Hunger) (gesunken OR Rückgang OR Erfolg OR bekämpft)",
         "en": "(poverty OR hunger) (decline OR fall OR reduced OR success)",
@@ -85,22 +163,118 @@
     }
   ],
   "sources": [
-    { "id": "tagesschau",   "name": "Tagesschau",      "domain": "tagesschau.de",     "lang": "de", "group": "de" },
-    { "id": "zeit",         "name": "ZEIT",            "domain": "zeit.de",           "lang": "de", "group": "de" },
-    { "id": "faz",          "name": "FAZ",             "domain": "faz.net",           "lang": "de", "group": "de" },
-    { "id": "sz",           "name": "Süddeutsche",     "domain": "sueddeutsche.de",   "lang": "de", "group": "de" },
-    { "id": "spiegel",      "name": "Spiegel",         "domain": "spiegel.de",        "lang": "de", "group": "de" },
-    { "id": "dpa",          "name": "dpa",             "domain": "dpa.com",           "lang": "de", "group": "de" },
-    { "id": "nzz",          "name": "NZZ",             "domain": "nzz.ch",            "lang": "de", "group": "de" },
-    { "id": "reuters",      "name": "Reuters",         "domain": "reuters.com",       "lang": "en", "group": "int" },
-    { "id": "ap",           "name": "AP",              "domain": "apnews.com",        "lang": "en", "group": "int" },
-    { "id": "bbc",          "name": "BBC",             "domain": "bbc.com",           "lang": "en", "group": "int" },
-    { "id": "guardian",     "name": "Guardian",        "domain": "theguardian.com",   "lang": "en", "group": "int" },
-    { "id": "lemonde",      "name": "Le Monde",        "domain": "lemonde.fr",        "lang": "fr", "group": "int" },
-    { "id": "elpais",       "name": "El País",         "domain": "elpais.com",        "lang": "es", "group": "int" },
-    { "id": "cleanthinking","name": "cleanthinking.de","domain": "cleanthinking.de",  "lang": "de", "group": "special" },
-    { "id": "wwf",          "name": "WWF",             "domain": "wwf.de",            "lang": "de", "group": "special" },
-    { "id": "medscape",     "name": "Medscape",        "domain": "medscape.com",      "lang": "en", "group": "special" }
+    {
+      "id": "tagesschau",
+      "name": "Tagesschau",
+      "domain": "tagesschau.de",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "zeit",
+      "name": "ZEIT",
+      "domain": "zeit.de",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "faz",
+      "name": "FAZ",
+      "domain": "faz.net",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "sz",
+      "name": "Süddeutsche",
+      "domain": "sueddeutsche.de",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "spiegel",
+      "name": "Spiegel",
+      "domain": "spiegel.de",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "dpa",
+      "name": "dpa",
+      "domain": "dpa.com",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "nzz",
+      "name": "NZZ",
+      "domain": "nzz.ch",
+      "lang": "de",
+      "group": "de"
+    },
+    {
+      "id": "reuters",
+      "name": "Reuters",
+      "domain": "reuters.com",
+      "lang": "en",
+      "group": "int"
+    },
+    {
+      "id": "ap",
+      "name": "AP",
+      "domain": "apnews.com",
+      "lang": "en",
+      "group": "int"
+    },
+    {
+      "id": "bbc",
+      "name": "BBC",
+      "domain": "bbc.com",
+      "lang": "en",
+      "group": "int"
+    },
+    {
+      "id": "guardian",
+      "name": "Guardian",
+      "domain": "theguardian.com",
+      "lang": "en",
+      "group": "int"
+    },
+    {
+      "id": "lemonde",
+      "name": "Le Monde",
+      "domain": "lemonde.fr",
+      "lang": "fr",
+      "group": "int"
+    },
+    {
+      "id": "elpais",
+      "name": "El País",
+      "domain": "elpais.com",
+      "lang": "es",
+      "group": "int"
+    },
+    {
+      "id": "cleanthinking",
+      "name": "cleanthinking.de",
+      "domain": "cleanthinking.de",
+      "lang": "de",
+      "group": "special"
+    },
+    {
+      "id": "wwf",
+      "name": "WWF",
+      "domain": "wwf.de",
+      "lang": "de",
+      "group": "special"
+    },
+    {
+      "id": "medscape",
+      "name": "Medscape",
+      "domain": "medscape.com",
+      "lang": "en",
+      "group": "special"
+    }
   ],
   "newsTemplate": {
     "id": "string – Hash aus dem Artikel-Link",
@@ -116,5 +290,249 @@
     "fetchedAt": "number – Abrufzeitpunkt (ms seit 1970)",
     "keywords": "string[] – normalisierte Stichwörter zur Duplikat-Erkennung",
     "read": "boolean"
+  },
+  "positivity": {
+    "_info": "Bewertung jeder Schlagzeile. Wort = exakt, wort* = beginnt mit, *wort* = enthält. Score = positive Treffer − 2 × negative Treffer. Streng: Score ≥ 1, sonst Score ≥ 0.",
+    "de": {
+      "positive": [
+        "*erfolg*",
+        "*durchbruch*",
+        "*fortschritt*",
+        "*rekord*",
+        "gelungen",
+        "gelingt",
+        "geschafft",
+        "*rettet*",
+        "*gerettet*",
+        "*rettung*",
+        "hilft",
+        "helfen",
+        "geholfen",
+        "*heilung*",
+        "geheilt",
+        "*verbessert*",
+        "*verbesserung*",
+        "erholt*",
+        "*erholung*",
+        "zuruck*",
+        "*ruckkehr*",
+        "wiederangesiedelt",
+        "*geschutzt*",
+        "*schutzgebiet*",
+        "ausgezeichnet",
+        "*innovation*",
+        "innovativ*",
+        "*losung*",
+        "*hoffnung*",
+        "*meilenstein*",
+        "erstmals",
+        "gewonnen",
+        "*sieg*",
+        "freigelassen",
+        "befreit",
+        "nachhaltig*",
+        "*ausbau*",
+        "eroffnet",
+        "gegrundet",
+        "*spende*",
+        "unterstutz*",
+        "initiative*",
+        "wirksam*",
+        "schutzt",
+        "halbiert",
+        "verdoppelt",
+        "gesunken",
+        "*ruckgang*",
+        "positiv*",
+        "gute*",
+        "chance*",
+        "*zulassung*",
+        "zugelassen",
+        "*impfstoff*",
+        "*sauber*",
+        "*ermoglicht*",
+        "*starkt*"
+      ],
+      "negative": [
+        "*krieg*",
+        "tot",
+        "tote",
+        "toten",
+        "getotet",
+        "*sterben*",
+        "gestorben",
+        "*anschlag*",
+        "*terror*",
+        "*mord*",
+        "ermordet",
+        "*angriff*",
+        "*gewalt*",
+        "*katastroph*",
+        "*krise*",
+        "*skandal*",
+        "warnt",
+        "warnung*",
+        "*bedroh*",
+        "*gefahr*",
+        "*verlust*",
+        "verloren",
+        "*scheiter*",
+        "*gescheitert*",
+        "*erfolglos*",
+        "*pleite*",
+        "*insolvenz*",
+        "*unfall*",
+        "*brand*",
+        "*durre*",
+        "*explosion*",
+        "*festgenommen*",
+        "*verletzt*",
+        "*opfer*",
+        "*eskalation*",
+        "*absturz*"
+      ]
+    },
+    "en": {
+      "positive": [
+        "breakthrough*",
+        "success*",
+        "record*",
+        "progress*",
+        "milestone*",
+        "save",
+        "saves",
+        "saved",
+        "saving",
+        "rescue*",
+        "cure*",
+        "recover*",
+        "comeback",
+        "restor*",
+        "improv*",
+        "boost*",
+        "win",
+        "wins",
+        "won",
+        "victory",
+        "freed",
+        "hope*",
+        "innovat*",
+        "protect*",
+        "thriv*",
+        "flourish*",
+        "reviv*",
+        "celebrat*",
+        "halved",
+        "doubled",
+        "approv*",
+        "effective",
+        "landmark",
+        "historic",
+        "clean*",
+        "helps",
+        "helped",
+        "good",
+        "first"
+      ],
+      "negative": [
+        "war",
+        "wars",
+        "kill*",
+        "dead",
+        "death*",
+        "die",
+        "dies",
+        "died",
+        "attack*",
+        "murder*",
+        "terror*",
+        "crisis",
+        "disaster*",
+        "catastroph*",
+        "threat*",
+        "warn*",
+        "collaps*",
+        "fail*",
+        "scandal*",
+        "violen*",
+        "shoot*",
+        "crash*",
+        "bomb*",
+        "fear*",
+        "injur*",
+        "victim*",
+        "arrest*",
+        "explosion*"
+      ]
+    },
+    "fr": {
+      "positive": [
+        "succes*",
+        "percee*",
+        "record*",
+        "progres*",
+        "sauve*",
+        "guerison*",
+        "gueri*",
+        "retour*",
+        "reussi*",
+        "victoire*",
+        "espoir*",
+        "innov*",
+        "protege*",
+        "ameliore*",
+        "amelioration*",
+        "aide*",
+        "premiere*"
+      ],
+      "negative": [
+        "guerre*",
+        "mort",
+        "morts",
+        "tue*",
+        "attentat*",
+        "meurtre*",
+        "crise*",
+        "catastroph*",
+        "menace*",
+        "violence*",
+        "echec*",
+        "bless*",
+        "victime*"
+      ]
+    },
+    "es": {
+      "positive": [
+        "exito*",
+        "avance*",
+        "record*",
+        "progreso*",
+        "salva*",
+        "cura*",
+        "recupera*",
+        "logro*",
+        "victoria*",
+        "esperanza*",
+        "innova*",
+        "protege*",
+        "mejora*",
+        "ayuda*",
+        "primer*"
+      ],
+      "negative": [
+        "guerra*",
+        "muert*",
+        "ataque*",
+        "atentado*",
+        "asesin*",
+        "crisis",
+        "catastrof*",
+        "amenaza*",
+        "violencia*",
+        "fracas*",
+        "herid*",
+        "victima*"
+      ]
+    }
   }
 }
